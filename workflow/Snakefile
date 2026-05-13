@@ -32,7 +32,7 @@ with open(join(workpath, 'config', 'cluster.json')) as fh:
 rule all:
     input:
         # TODO: Add final targets
-        expand(),
+        []
 
 
 # Import rules
