@@ -1,26 +1,28 @@
-# <code>baseline <b>run</b></code>
+# <code>microbe-count <b>run</b></code>
 
 ## 1. About 
-The `baseline` executable is composed of several inter-related sub commands. Please see `baseline -h` for all available options.
 
-This part of the documentation describes options and concepts for <code>baseline <b>run</b></code> sub command in more detail. With minimal configuration, the **`run`** sub command enables you to start running baseline pipeline. 
+The `microbe-count` executable is composed of several inter-related sub commands. Please see `microbe-count -h` for all available options.
 
-Setting up the baseline pipeline is fast and easy! In its most basic form, <code>baseline <b>run</b></code> only has *two required inputs*.
+This part of the documentation describes options and concepts for <code>microbe-count <b>run</b></code> sub command in more detail. With minimal configuration, the **`run`** sub command enables you to start running microbe-count pipeline. 
+
+Setting up the microbe-count pipeline is fast and easy! In its most basic form, <code>microbe-count <b>run</b></code> only has *three required inputs*.
 
 ## 2. Synopsis
+
 ```text
-$ baseline run [--help] \
-      [--mode {slurm,local}] [--job-name JOB_NAME] [--batch-id BATCH_ID] \
-      [--tmp-dir TMP_DIR] [--silent] [--sif-cache SIF_CACHE] \ 
-      [--singularity-cache SINGULARITY_CACHE] \
-      [--dry-run] [--threads THREADS] \
+$ microbe-count run [--help] \
+      [--dry-run] [--job-name JOB_NAME] [--mode {{slurm,local}}] \
+      [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE] \
+      [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
+      [--batch-id BATCH_ID] [--kraken2-db-path KRAKEN2_DB_PATH] \
       --input INPUT [INPUT ...] \
       --output OUTPUT
 ```
 
 The synopsis for each command shows its arguments and their usage. Optional arguments are shown in square brackets.
 
-A user **must** provide a list of FastQ (globbing is supported) to analyze via `--input` argument and an output directory to store results via `--output` argument.
+A user **must** provide a list of BAM (globbing is supported) to analyze via `--input` argument, an output directory to store results via `--output` argument, and a path/directory to a kraken2 database.
 
 Use you can always use the `-h` option for information on a specific command. 
 
@@ -29,12 +31,12 @@ Use you can always use the `-h` option for information on a specific command.
 Each of the following arguments are required. Failure to provide a required argument will result in a non-zero exit-code.
 
   `--input INPUT [INPUT ...]`  
-> **Input FastQ or BAM file(s).**  
-> *type: file(s)*  
+> **Input BAM file(s).**  
+> *type: BAM file(s)*  
 > 
-> One or more FastQ files can be provided. The pipeline does NOT support single-end data. From the command-line, each input file should seperated by a space. Globbing is supported! This makes selecting FastQ files easy. Input FastQ files should always be gzipp-ed.
+> Input BAM files to process. BAM files for one or more samples can be provided. Multiple input BAM files should be seperated by a space. Globbing for multiple file is also supported! This makes selecting BAM files easy.
 > 
-> ***Example:*** `--input .tests/*.R?.fastq.gz`
+> ***Example:*** `--input .tests/*.bam`
 
 ---  
   `--output OUTPUT`
@@ -43,13 +45,30 @@ Each of the following arguments are required. Failure to provide a required argu
 >   
 > This location is where the pipeline will create all of its output files, also known as the pipeline's working directory. If the provided output directory does not exist, it will be created automatically.
 > 
-> ***Example:*** `--output /data/$USER/baseline_out`
+> ***Example:*** `--output /data/$USER/microbe-count_out`
+
+---  
+  `--kraken2-db-path KRAKEN2_DB_PATH`
+> **Path to a Kraken2 Database.**   
+> *type: path*
+>   
+> A path or a directory to a kraken2 database. This database will be used for estimating microbial composition of each sample using kraken2. Please see the kraken2 documentation for more information on how to build a kraken2 database. If you have already built a kraken2 database, you can provide the path to the directory containing the database files. The pipeline will automatically search for the other database files in the same directory. Kraken2 databases can also be downloaded from the following [public resource hosted by Ben Langmead](https://benlangmead.github.io/aws-indexes/k2). 
+> 
+> ***Example:*** `--kraken2-db-path .tests/kraken2-db`
 
 ### 2.2 Analysis options
 
 Each of the following arguments are optional, and do not need to be provided. 
 
-...add non-required analysis options 
+  `--batch-id BATCH_ID`
+> **Unique identifer to associate with a batch of samples.**   
+> *type: string*  
+> *default: None*   
+>
+> This option can be provided to ensure that the counts matrix are not over-written between runs of the pipeline. This ensures project-level files (which are unique) will not get over written. With that being said, it is always a good idea to provide this option. A unique batch id should be provided between runs. This batch id should be composed of alphanumeric characters and it should not contain a white space or tab characters. Here is a list of valid or acceptable characters: `aA-Zz`, `0-9`, `-`, `_`.
+> 
+> ***Example:*** `--batch-id 2025_04_08`
+
 
 ### 2.3 Orchestration options
 
@@ -75,13 +94,13 @@ Each of the following arguments are optional, and do not need to be provided.
 ---  
   `--mode {slurm,local}`  
 > **Execution Method.**  
-> *type: string*  
+> *type: string*   
 > *default: slurm*
 > 
 > Execution Method. Defines the mode or method of execution. Vaild mode options include: slurm or local. 
 > 
 > ***slurm***    
-> The slurm execution method will submit jobs to the [SLURM workload manager](https://slurm.schedmd.com/). It is recommended running baseline in this mode as execution will be significantly faster in a distributed environment. This is the default mode of execution.
+> The slurm execution method will submit jobs to the [SLURM workload manager](https://slurm.schedmd.com/). It is recommended running microbe-count in this mode as execution will be significantly faster in a distributed environment. This is the default mode of execution.
 >
 > ***local***  
 > Local executions will run serially on compute instance. This is useful for testing, debugging, or when a users does not have access to a high performance computing environment. If this option is not provided, it will default to a local execution mode. 
@@ -91,10 +110,10 @@ Each of the following arguments are optional, and do not need to be provided.
 ---  
   `--job-name JOB_NAME`  
 > **Set the name of the pipeline's master job.**  
-> *type: string*
-> *default: pl:baseline*
+> *type: string*  
+> *default: pl:microbe-count*
 > 
-> When submitting the pipeline to a job scheduler, like SLURM, this option always you to set the name of the pipeline's master job. By default, the name of the pipeline's master job is set to "pl:baseline".
+> When submitting the pipeline to a job scheduler, like SLURM, this option always you to set the name of the pipeline's master job. By default, the name of the pipeline's master job is set to "pl:microbe-count".
 > 
 > ***Example:*** `--job-name pl_id-42`
 
@@ -113,9 +132,9 @@ Each of the following arguments are optional, and do not need to be provided.
 > **Path where a local cache of SIFs are stored.**  
 > *type: path*  
 >
-> Uses a local cache of SIFs on the filesystem. This SIF cache can be shared across users if permissions are set correctly. If a SIF does not exist in the SIF cache, the image will be pulled from Dockerhub and a warning message will be displayed. The `baseline cache` subcommand can be used to create a local SIF cache. Please see `baseline cache` for more information. This command is extremely useful for avoiding DockerHub pull rate limits. It also remove any potential errors that could occur due to network issues or DockerHub being temporarily unavailable. We recommend running baseline with this option when ever possible.
+> Uses a local cache of SIFs on the filesystem. This SIF cache can be shared across users if permissions are set correctly. If a SIF does not exist in the SIF cache, the image will be pulled from Dockerhub and a warning message will be displayed. The `microbe-count cache` subcommand can be used to create a local SIF cache. Please see `microbe-count cache` for more information. This command is extremely useful for avoiding DockerHub pull rate limits. It also remove any potential errors that could occur due to network issues or DockerHub being temporarily unavailable. We recommend running microbe-count with this option when ever possible.
 > 
-> ***Example:*** `--singularity-cache /data/$USER/SIFs`
+> ***Example:*** `--sif-cache /data/$USER/SIFs`
 
 ---  
   `--threads THREADS`   
@@ -132,13 +151,14 @@ Each of the following arguments are optional, and do not need to be provided.
   `--tmp-dir TMP_DIR`   
 > **Max number of threads for each process.**  
 > *type: path*  
-> *default: `/lscratch/$SLURM_JOBID`*
+> *default: None*
 > 
-> Path on the file system for writing temporary output files. By default, the temporary directory is set to '/lscratch/$SLURM_JOBID' for backwards compatibility with the NIH's Biowulf cluster; however, if you are running the pipeline on another cluster, this option will need to be specified. Ideally, this path should point to a dedicated location on the filesystem for writing tmp files. On many systems, this location is set to somewhere in /scratch. If you need to inject a variable into this string that should NOT be expanded, please quote this options value in single quotes.
+> Path on the file system for writing temporary output files. Ideally, this path should point to a dedicated location on the filesystem for writing tmp files. On many systems, this location is set to somewhere in `/data/scratch`. If you need to inject a variable into this string that should NOT be expanded, please quote this options value in single quotes.
 > 
-> ***Example:*** `--tmp-dir /scratch/$USER/`
+> ***Example:*** `--tmp-dir /data/scratch/$USER`
 
-### 2.4 Miscellaneous options  
+### 2.4 Miscellaneous options 
+
 Each of the following arguments are optional, and do not need to be provided. 
 
   `-h, --help`            
@@ -150,24 +170,27 @@ Each of the following arguments are optional, and do not need to be provided.
 > ***Example:*** `--help`
 
 ## 3. Example
+
 ```bash 
 # Step 1.) Grab an interactive node,
 # do not run on head node!
 srun -N 1 -n 1 --time=1:00:00 --mem=8gb  --cpus-per-task=2 --pty bash
 module purge
-module load singularity snakemake
+module load snakemake/7.22.0-ufanewz
 
 # Step 2A.) Dry-run the pipeline
-./baseline run --input .tests/*.R?.fastq.gz \
+./microbe-count run --input .tests/*.bam \
                   --output /data/$USER/output \
+                  --kraken2-db-path .tests/kraken2-db \
                   --mode slurm \
                   --dry-run
 
-# Step 2B.) Run the baseline pipeline
+# Step 2B.) Run the microbe-count pipeline
 # The slurm mode will submit jobs to 
 # the cluster. It is recommended running 
 # the pipeline in this mode.
-./baseline run --input .tests/*.R?.fastq.gz \
+./microbe-count run --input .tests/*.bam \
                   --output /data/$USER/output \
+                  --kraken2-db-path .tests/kraken2-db \
                   --mode slurm
 ```

@@ -1,20 +1,20 @@
 # Project Information
-site_name: baseline
+site_name: microbe-count
 site_author: Skyler Kuhn
 site_description: >-
-  An awesome OpenOmics baseline pipeline
+  An awesome OpenOmics microbe-count pipeline
 
 # Repository
-repo_name: OpenOmics/baseline
-repo_url: https://github.com/OpenOmics/baseline
-edit_uri: https://github.com/OpenOmics/baseline/edit/main/docs/
+repo_name: OpenOmics/microbe-count
+repo_url: https://github.com/OpenOmics/microbe-count
+edit_uri: https://github.com/OpenOmics/microbe-count/edit/main/docs/
 
 # Extra
 extra_css:
   - css/extra.css
 
 # Copyright
-copyright: Copyright &copy; 2023 OpenOmics
+copyright: Copyright &copy; 2026 OpenOmics
 
 # Configuration
 theme:
@@ -98,10 +98,10 @@ markdown_extensions:
 nav:
   - About: index.md
   - Commands: 
-    - baseline run: usage/run.md
-    - baseline unlock: usage/unlock.md
-    - baseline install: usage/install.md
-    - baseline cache: usage/cache.md
+    - microbe-count run: usage/run.md
+    - microbe-count unlock: usage/unlock.md
+    - microbe-count install: usage/install.md
+    - microbe-count cache: usage/cache.md
   - FAQ:
     - General Questions: faq/questions.md
   - License: license.md
