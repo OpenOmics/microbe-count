@@ -1,4 +1,5 @@
 {
     "images": {
+        "microbe-count": "docker://skchronicles/microbe-count:v0.1.0"
     }
 }

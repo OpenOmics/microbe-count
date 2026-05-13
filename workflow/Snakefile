@@ -1,27 +1,40 @@
 # Python standard library
 from os.path import join
-from os import listdir
-import os, sys, json
-
+import os, json
 # 3rd party imports from pypi
-from snakemake.workflow import workflow as wf_api
-from snakemake.utils import R
-
+from snakemake.io import expand
 # Local imports
 from scripts.common import (
     allocated,
-    provided, 
-    references,
+    provided,
     str_bool
 )
 
 
-# Final ouput files of the pipeline
+# Global workflow variables
+configfile: 'config.json'                       # Generated from user input and config/*.json
+bindpath = config['bindpaths']                  # Singularity paths to bind to the container
+samples  = config['samples']                    # Base name of input samples
+workpath = config['project']['workpath']        # Pipeline's output directory
+kdb_path = config['options']['kraken2_db_path'] # Kraken2 db for estimating contamination
+batch_id = config['options']['batch_id']        # Batch Identifer, default: ''.
+
+# Read in resource information,
+# containing information about
+# threads, mem, walltimes, etc.
+# TODO: Add handler for when the
+# mode is set to local.
+with open(join(workpath, 'config', 'cluster.json')) as fh:
+    cluster = json.load(fh)
+
+
+# Final output files of the pipeline
 rule all:
     input:
-        []
+        # TODO: Add final targets
+        expand(),
 
 
-# Import rules 
+# Import rules
 include: join("rules", "common.smk")
 include: join("rules", "hooks.smk")
