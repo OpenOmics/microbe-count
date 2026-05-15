@@ -5,8 +5,10 @@ FROM ubuntu:24.04
 # Depedencies of microbe-count include:
 #  • kraken2        apt-get, installs: 2.1.3-1
 #  • bracken        build from source, github install: 2.9
+#  • centrifuger    build from source, github install: 1.1.1
 #  • samtools       apt-get, installs: 1.19.2-1
 #  • python3        apt-get, installs: 3.12.3-0
+#  • multiqc        installed from pypi, installs: 1.35
 LABEL maintainer=kuhnsa@nih.gov
 
 ############### INIT ################
@@ -56,7 +58,8 @@ RUN localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # Make python3 the default interpreter
 # and install Python Packages
-RUN ln -sf /usr/bin/python3 /usr/bin/python
+RUN ln -sf /usr/bin/python3 /usr/bin/python \
+        && pip3 install --break-system-packages multiqc==1.35
 
 ############### INSTALL ################
 # Install GNU which, increases compatiability
@@ -74,6 +77,15 @@ RUN mkdir -p /opt2/ \
         && make \
         && make install
 
+# Install centrifuger from Github,
+# https://github.com/mourisl/centrifuger
+RUN cd /opt2 \
+       && wget https://github.com/mourisl/centrifuger/archive/refs/tags/v1.1.1.tar.gz -O /opt2/centrifuger.tar.gz \
+        && tar -xvf /opt2/centrifuger.tar.gz -C /opt2/ \
+        && rm /opt2/centrifuger.tar.gz \
+        && cd /opt2/centrifuger-1.1.1/ \
+        && make
+
 # Install bracken from Github,
 # https://github.com/jenniferlu717/Bracken
 RUN cd /opt2 \
@@ -88,5 +100,5 @@ RUN cd /opt2 \
 # environment variables
 ADD Dockerfile /opt2/microbe-count_0-1-0.dockerfile
 RUN chmod -R a+rX /opt2
-ENV PATH="/opt2/which-2.21/bin:/opt2/Bracken-2.9:/opt2/Bracken-2.9/src:${PATH}"
+ENV PATH="/opt2/which-2.21/bin:/opt2/centrifuger-1.1.1:/opt2/Bracken-2.9:/opt2/Bracken-2.9/src:${PATH}"
 WORKDIR /data2
