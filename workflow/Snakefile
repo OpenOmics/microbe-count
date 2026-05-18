@@ -31,10 +31,16 @@ with open(join(workpath, 'config', 'cluster.json')) as fh:
 # Final output files of the pipeline
 rule all:
     input:
-        # TODO: Add final targets
-        []
+        # Create host removed FastQ files,
+        # extracts unmapped reads from the
+        # input host-aligned BAM files
+        # @imported from rules/host_removal.smk
+        # @output of rule host_removed_reads
+        expand(join(workpath, "fastqs", "{name}.R1.fastq.gz"), name=samples),
+        expand(join(workpath, "fastqs", "{name}.R2.fastq.gz"), name=samples),
 
 
 # Import rules
+include: join("rules", "host_removal.smk")
 include: join("rules", "common.smk")
 include: join("rules", "hooks.smk")
