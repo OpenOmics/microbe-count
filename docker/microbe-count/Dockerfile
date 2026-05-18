@@ -78,12 +78,16 @@ RUN mkdir -p /opt2/ \
         && make install
 
 # Install centrifuger from Github,
+# checkout the latest commit hash
+# for reproducibility, this has a
+# bug fix for printing help/usage
+# info without a core dump:
 # https://github.com/mourisl/centrifuger
 RUN cd /opt2 \
-       && wget https://github.com/mourisl/centrifuger/archive/refs/tags/v1.1.1.tar.gz -O /opt2/centrifuger.tar.gz \
-        && tar -xvf /opt2/centrifuger.tar.gz -C /opt2/ \
-        && rm /opt2/centrifuger.tar.gz \
-        && cd /opt2/centrifuger-1.1.1/ \
+        && git clone https://github.com/mourisl/centrifuger.git /opt2/centrifuger-d561b2a \
+        && cd /opt2/centrifuger-d561b2a/ \
+        && git checkout d561b2aa37e36a8f003801e4b20a15ebbfa92df3 \
+        && rm -rf /opt2/centrifuger-d561b2a/.git \
         && make
 
 # Install bracken from Github,
@@ -100,5 +104,5 @@ RUN cd /opt2 \
 # environment variables
 ADD Dockerfile /opt2/microbe-count_0-1-0.dockerfile
 RUN chmod -R a+rX /opt2
-ENV PATH="/opt2/which-2.21/bin:/opt2/centrifuger-1.1.1:/opt2/Bracken-2.9:/opt2/Bracken-2.9/src:${PATH}"
+ENV PATH="/opt2/which-2.21/bin:/opt2/centrifuger-d561b2a:/opt2/Bracken-2.9:/opt2/Bracken-2.9/src:${PATH}"
 WORKDIR /data2
