@@ -23,8 +23,8 @@ rule host_removed_reads:
     input:
         bam   = join(workpath, "{name}.bam"),
     output:
-        r1 = join(workpath, "fastqs", "{name}.R1.fastq.gz"),
-        r2 = join(workpath, "fastqs", "{name}.R2.fastq.gz"),
+        r1 = join(workpath, "{name}", "fastqs", "{name}.R1.fastq.gz"),
+        r2 = join(workpath, "{name}", "fastqs", "{name}.R2.fastq.gz"),
     params:
         rname  = "hostrmfqs",
         tmpdir = join(workpath, "temp"),

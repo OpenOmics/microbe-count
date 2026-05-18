@@ -36,8 +36,20 @@ rule all:
         # input host-aligned BAM files
         # @imported from rules/host_removal.smk
         # @output of rule host_removed_reads
-        expand(join(workpath, "fastqs", "{name}.R1.fastq.gz"), name=samples),
-        expand(join(workpath, "fastqs", "{name}.R2.fastq.gz"), name=samples),
+        expand(join(workpath, "{name}", "fastqs", "{name}.R1.fastq.gz"), name=samples),
+        expand(join(workpath, "{name}", "fastqs", "{name}.R2.fastq.gz"), name=samples),
+        # Alignment statistics on input BAM files,
+        # including flagstat, stats, and idxstats
+        # @imported from rules/qc.smk
+        # @output of rule alignment_stats
+        expand(join(workpath, "{name}", "qc", "{name}.flagstat.txt"), name=samples),
+        expand(join(workpath, "{name}", "qc", "{name}.stats.txt"), name=samples),
+        expand(join(workpath, "{name}", "qc", "{name}.idxstats.txt"), name=samples),
+        # FastQC reports on host removed FastQ files
+        # @imported from rules/qc.smk
+        # @output of rule fastqc_extracted_reads
+        expand(join(workpath, "{name}", "qc", "{name}.R1_fastqc.zip"), name=samples),
+        expand(join(workpath, "{name}", "qc", "{name}.R2_fastqc.zip"), name=samples),
 
 
 # Import rules
