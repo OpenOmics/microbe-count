@@ -9,6 +9,7 @@ FROM ubuntu:24.04
 #  • samtools       apt-get, installs: 1.19.2-1
 #  • python3        apt-get, installs: 3.12.3-0
 #  • multiqc        installed from pypi, installs: 1.35
+#  • fastqc         apt-get, installs: 0.12.1
 LABEL maintainer=kuhnsa@nih.gov
 
 ############### INIT ################
@@ -36,6 +37,7 @@ RUN apt-get update \
         ca-certificates \
         cmake \
         curl \
+        fastqc \
         gawk \
         git \
         gzip \
