@@ -1,4 +1,9 @@
-# Quality-control rules
+# Functions and quality-control related rules
+# Local imports
+from scripts.common import (
+    allocated
+)
+
 # Pre-alignment quality control
 rule samtools_stats:
     """

@@ -1,6 +1,4 @@
 # Functions and rules for removing host reads
-# Standard Library
-import textwrap
 # Local imports
 from scripts.common import (
     allocated
