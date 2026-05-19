@@ -390,9 +390,10 @@ def parsed_arguments(name, description):
                 [--dry-run] [--job-name JOB_NAME] [--mode {{slurm,local}}] \\
                 [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE] \\
                 [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \\
-                [--batch-id BATCH_ID] [--kraken2-db-path KRAKEN2_DB_PATH] \\
+                [--batch-id BATCH_ID] [--taxonomic-level TAXONOMIC_LEVEL] \\
                 --input INPUT [INPUT ...] \\
-                --output OUTPUT
+                --output OUTPUT \\
+                --kraken2-db-path KRAKEN2_DB_PATH
 
         Optional arguments are shown in square brackets above.
 
@@ -416,12 +417,14 @@ def parsed_arguments(name, description):
                                 it will be created automatically.
                                   Example: --output microbe-count_output
           --kraken2-db-path KRAKEN2_DB_PATH             
-                                A path or a directory to a kraken2 database. This
-                                db will be used for estimating microbial composition
-                                of each sample using kraken2. Please see the kraken2
-                                documentation for more information on how to build a
-                                kraken2 database. Kraken2 databases can also be
-                                downloaded from the following public repository:
+                                A path or a directory to a kraken2 & bracken database.
+                                These databases will be used for estimating microbial
+                                composition of each sample using kraken2 and then re-
+                                estimating the microbial abundances with bracken.
+                                Please see the kraken2 & bracken documentation for
+                                more information on how to build a kraken2/bracken db.
+                                Kraken2 and bracken databases can also be downloaded
+                                from the following public repository:
                                 https://benlangmead.github.io/aws-indexes/k2
                                   Example: --kraken2-db-path .tests/kraken2-db
 
@@ -450,6 +453,16 @@ def parsed_arguments(name, description):
                                 characters. Here is a list of valid or acceptable
                                 characters: "aA-Zz", "0-9", "-", "_".
                                   Example: --batch-id "2024-04-01"
+          --taxonomic-level TAXONOMIC_LEVEL
+                                One or more taxonomic levels to re-estimate microbial
+                                abudances. This option is used to specify the taxonomic
+                                level to estimate microbial composition with bracken.
+                                Valid options include: "D" for domain, "P" for phylum,
+                                "C" for class, "O" for order, "F" for family, "G" for
+                                genus, and "S" for species. By default, the pipeline
+                                will estimate microbial composition at the species-
+                                level.
+                                  Example: --taxonomic-level S
 
         {3}{4}Orchestration options:{5}
           --mode {{slurm,local}}  
@@ -534,6 +547,7 @@ def parsed_arguments(name, description):
 
           # Step 2A.) Dry-run the pipeline
           ./{0} run --input .tests/*.bam \\
+                         --taxonomic-level G S \\
                          --output microbe-count_output \\
                          --kraken2-db-path .tests/kraken2-db \\
                          --mode slurm \\
@@ -544,6 +558,7 @@ def parsed_arguments(name, description):
           # the cluster. It is recommended running 
           # the pipeline in this mode.
           ./{0} run --input .tests/*.bam \\
+                         --taxonomic-level G S \\
                          --output microbe-count_output \\
                          --kraken2-db-path .tests/kraken2-db \\
                          --mode slurm
@@ -606,6 +621,18 @@ def parsed_arguments(name, description):
         type = lambda option: valid_directory(parser, option.replace(' ', '_')),
         required = False,
         default = '',
+        help = argparse.SUPPRESS
+    )
+
+    # One or more taxonomic level for
+    # bracken abundance re-estimation
+    subparser_run.add_argument(
+        '--taxonomic-level',
+        type = str.upper,
+        required = False,
+        default = ['S'],
+        choices=("D", "K", "P", "C", "O", "F", "G", "S"),
+        nargs='+',
         help = argparse.SUPPRESS
     )
 

@@ -1,4 +1,6 @@
 {
     "options": {
+        "KRAKEN2_CONFIDENCE": 0.0,
+        "BRACKEN_THRESHOLD": 0
     }
 }

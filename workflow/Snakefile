@@ -18,6 +18,7 @@ samples  = config['samples']                    # Base name of input samples
 workpath = config['project']['workpath']        # Pipeline's output directory
 kdb_path = config['options']['kraken2_db_path'] # Kraken2 db for estimating contamination
 batch_id = config['options']['batch_id']        # Batch Identifer, default: ''.
+taxa_lvl = config['options']['taxonomic_level'] # Taxonomic level(s) for bracken
 
 # Read in resource information,
 # containing information about
@@ -50,10 +51,23 @@ rule all:
         # @output of rule fastqc_extracted_reads
         expand(join(workpath, "{name}", "qc", "{name}.R1_fastqc.zip"), name=samples),
         expand(join(workpath, "{name}", "qc", "{name}.R2_fastqc.zip"), name=samples),
+        # Run kraken2 on host removed FastQ files
+        # @imported from rules/classification.smk
+        # @output of rule kraken2_classification
+        expand(join(workpath, "{name}", "kraken2", "{name}.kraken2.report"), name=samples),
+        # Run bracken to re-estimate microbial abundances
+        # at user defined taxonomic level(s)
+        # @imported from rules/classification.smk
+        # @output of rule bracken_abundance_estimation
+        expand(
+            join(workpath, "{name}", "kraken2", "{name}.bracken.{level}.tsv"),
+            name=samples, level=config['options']['taxonomic_level']
+        )
 
 
 # Import rules
 include: join("rules", "host_removal.smk")
 include: join("rules", "qc.smk")
+include: join("rules", "classification.smk")
 include: join("rules", "common.smk")
 include: join("rules", "hooks.smk")
