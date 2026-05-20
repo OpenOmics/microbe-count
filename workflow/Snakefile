@@ -62,7 +62,12 @@ rule all:
         expand(
             join(workpath, "{name}", "kraken2", "{name}.bracken.{level}.tsv"),
             name=samples, level=config['options']['taxonomic_level']
-        )
+        ),
+        # Run multiqc to aggregate and summarize QC
+        # metrics across samples
+        # @imported from rules/qc.smk
+        # @output of rule multiqc
+        join(workpath, "report", batch_id, "multiqc_report.html"),
 
 
 # Import rules
