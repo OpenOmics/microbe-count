@@ -107,6 +107,7 @@ rule bracken_abundance_estimation:
             else if (max <= 100) r = 100
             else if (max <= 150) r = 150
             else if (max <= 200) r = 200
+            else if (max <= 250) r = 250
             else if (max <= 300) r = 300
             else {{
                 print "Error: max read length " max " exceeds db read length." > "/dev/stderr"
