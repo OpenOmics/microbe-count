@@ -151,9 +151,9 @@ Each of the following arguments are optional, and do not need to be provided.
   `--tmp-dir TMP_DIR`   
 > **Max number of threads for each process.**  
 > *type: path*  
-> *default: None*
+> *default: /path/to/output/temp*
 > 
-> Path on the file system for writing temporary output files. Ideally, this path should point to a dedicated location on the filesystem for writing tmp files. On many systems, this location is set to somewhere in `/data/scratch`. If you need to inject a variable into this string that should NOT be expanded, please quote this options value in single quotes.
+> Path on the file system for writing temporary output files. Ideally, this path should point to a dedicated location on the filesystem for writing tmp files. On many systems, this location is set to somewhere in `/data/scratch`. If you need to inject a variable into this string that should NOT be expanded, please quote this options value in single quotes. By default, the temporary directory is set to a folder called `temp` in the output directory.
 > 
 > ***Example:*** `--tmp-dir /data/scratch/$USER`
 

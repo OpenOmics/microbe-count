@@ -123,7 +123,7 @@ def run(sub_args):
     if sub_args.tmp_dir is None:
         # Set the default tmpdir
         # to the output directory
-        sub_args.tmp_dir = os.path.join(sub_args.output, "temp", "$SLURM_JOBID" )
+        sub_args.tmp_dir = os.path.join(sub_args.output, "temp")
     
     config = setup(sub_args, 
         ifiles = input_files,
@@ -517,13 +517,13 @@ def parsed_arguments(name, description):
           --tmp-dir TMP_DIR     
                                 Path on the file system for writing temporary output 
                                 files. By default, the temporary directory is set to 
-                                '/path/to/output/dir/tmp/$SLURM_JOBID'. Ideally, this
-                                path should point to a dedicated location on the file-
-                                system for writing tmp files. On many systems, this
-                                location is set to somewhere in /scratch. If you need
-                                to inject a variable into this string that should NOT
-                                be expanded, please quote this options value in single
-                                quotes. Please see example directly below:
+                                '/path/to/output/dir/temp/'. Ideally, this path should
+                                point to a dedicated location on the file-system for
+                                writing tmp files. On many systems, this location is
+                                set to somewhere in /scratch. If you need to inject a
+                                variable into this string that should NOT be expanded,
+                                please quote this options value in single quotes.
+                                Please see example directly below.
                                   Example: --tmp-dir '/scratch/$USER/'
           --threads THREADS     
                                 Max number of threads for local processes. It is
