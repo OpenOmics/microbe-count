@@ -129,10 +129,10 @@ rule multiqc:
         flagstat = expand(join(workpath, "{name}", "qc", "{name}.flagstats"), name=samples),
         stats    = expand(join(workpath, "{name}", "qc", "{name}.stats"), name=samples),
         idx      = expand(join(workpath, "{name}", "qc", "{name}.idxstats"), name=samples),
-        kraken   = expand(join(workpath, "{name}", "kraken2", "{name}.kraken2.report"), name=samples),
+        kraken   = expand(join(workpath, "{name}", "kraken2", "{name}_kraken2.report"), name=samples),
         bracken  =  expand(
-            join(workpath, "{name}", "kraken2", "{name}.bracken.{level}.tsv"),
-            name=samples, level=config['options']['taxonomic_level']
+            join(workpath, "{name}", "bracken", "{name}_bracken_{level}-level.tsv"),
+            name=samples, level=taxa_lvl
         ),
     output:
         report = join(workpath, "report", batch_id, "multiqc_report.html"),

@@ -168,6 +168,7 @@ rule taxpasta_counts_matrix:
         # kraken2 databases should always contain
         # these files.
         db           = config["options"]["kraken2_db_path"],
+        file_header  = "sample\tprofile",
         sample_sheet = lambda w: "\n".join([
             "{0}\t{1}".format(
                 str(s),
@@ -195,6 +196,7 @@ rule taxpasta_counts_matrix:
         #  1st column = Sample (name in matrix)
         #  2nd column = Per-sample counts file
         cat << EOF > {output.sheet}
+        {params.file_header}
         {params.sample_sheet}
         EOF
         # Run taxpasta to generate count matrix
