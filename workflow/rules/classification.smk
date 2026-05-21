@@ -17,13 +17,13 @@ rule kraken2_classification:
     This rule is scatter per the cartesian product of samples and taxonomic
     levels.
     @Input:
-        Paired-end FastQ files containing unmapped reads (scatter-per-sample-per-taxonomic-level)
+        Trimmed paired-end FastQ files containing unmapped reads (scatter-per-sample-per-taxonomic-level)
     @Output:
         Taxonomic classification report of host-removed reads
     """
     input:
-        r1 = join(workpath, "{name}", "fastqs", "{name}.R1.fastq.gz"),
-        r2 = join(workpath, "{name}", "fastqs", "{name}.R2.fastq.gz"),
+        r1 = join(workpath, "{name}", "fastqs", "{name}.R1.trimmed.fastq.gz"),
+        r2 = join(workpath, "{name}", "fastqs", "{name}.R2.trimmed.fastq.gz"),
     output:
         rpt = join(workpath, "{name}", "kraken2", "{name}_kraken2.report"),
         tsv = join(workpath, "{name}", "kraken2", "{name}_kraken2_output.tsv"),
@@ -73,6 +73,8 @@ rule bracken_abundance_estimation:
         Bracken abundances report
     """
     input:
+        # Use un-trimmed fastqs for estimating
+        # max read length for bracken kmer db
         r1 = join(workpath, "{name}", "fastqs", "{name}.R1.fastq.gz"),
         r2 = join(workpath, "{name}", "fastqs", "{name}.R2.fastq.gz"),
         rpt = join(workpath, "{name}", "kraken2", "{name}_kraken2.report"),

@@ -20,8 +20,9 @@ TAXONOMY_MAP = {
     'G': 'genus',  'S': 'species'
 }
 # Maps full name of taxonomic level to
-# the its corresponding abbreviation
-# braken's level option
+# its corresponding abbreviated level
+# for bracken to re-estimate abundances
+# at the specified taxonomic level
 BRACKEN_MAP = {
     'domain': 'D', 'kingdom': 'K',
     'phylum': 'P', 'class':   'C',
@@ -53,11 +54,13 @@ rule all:
     input:
         # Create host removed FastQ files,
         # extracts unmapped reads from the
-        # input host-aligned BAM files
+        # input host-aligned BAM files and
+        # trim them with fastp, untrimmed
+        # fastq files are temp files
         # @imported from rules/host_removal.smk
-        # @output of rule host_removed_reads
-        expand(join(workpath, "{name}", "fastqs", "{name}.R1.fastq.gz"), name=samples),
-        expand(join(workpath, "{name}", "fastqs", "{name}.R2.fastq.gz"), name=samples),
+        # @output of rule fastp
+        expand(join(workpath, "{name}", "fastqs", "{name}.R1.trimmed.fastq.gz"), name=samples),
+        expand(join(workpath, "{name}", "fastqs", "{name}.R2.trimmed.fastq.gz"), name=samples),
         # Alignment statistics on input BAM files,
         # including flagstat, stats, and idxstats
         # @imported from rules/qc.smk

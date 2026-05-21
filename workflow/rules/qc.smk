@@ -61,13 +61,13 @@ rule fastqc_extracted_reads:
     For more information, please visit their documentation:
     https://github.com/s-andrews/FastQC
     @Input:
-        Paired-end FastQ files containing unmapped reads (scatter)
+        Trimmed paired-end FastQ files containing unmapped reads (scatter)
     @Output:
-        FastQC html report and zip file on unmapped reads
+        FastQC html report and zip file on trimmed unmapped reads
     """
     input:
-        r1 = join(workpath, "{name}", "fastqs", "{name}.R1.fastq.gz"),
-        r2 = join(workpath, "{name}", "fastqs", "{name}.R2.fastq.gz"),
+        r1 = join(workpath, "{name}", "fastqs", "{name}.R1.trimmed.fastq.gz"),
+        r2 = join(workpath, "{name}", "fastqs", "{name}.R2.trimmed.fastq.gz"),
     output:
         join(workpath, "{name}", "qc", "{name}.R1_fastqc.zip"),
         join(workpath, "{name}", "qc", "{name}.R2_fastqc.zip"),
@@ -115,7 +115,8 @@ rule multiqc:
     across samples. For more information, please visit their documentation:
     https://github.com/MultiQC/MultiQC
     @Input:
-        FastQC reports on unmapped reads (gather),
+        FastQC reports on trimmed unmapped reads (gather),
+        Fastp json file with trimming statistics (gather),
         Samtools statistics via flagstat/stats/idxstats on input BAM files (gather),
         kraken2 reports on unmapped reads (gather),
         bracken reports on unmapped reads ~ not sure if MQC will pick these files up (gather)
@@ -126,6 +127,7 @@ rule multiqc:
     """
     input:
         fastqc   = expand(join(workpath, "{name}", "qc", "{name}.{rn}_fastqc.zip"), name=samples, rn=["R1", "R2"]),
+        fastp    = expand(join(workpath, "{name}", "fastqs", "{name}.fastp.json"), name=samples),
         flagstat = expand(join(workpath, "{name}", "qc", "{name}.flagstats"), name=samples),
         stats    = expand(join(workpath, "{name}", "qc", "{name}.stats"), name=samples),
         idx      = expand(join(workpath, "{name}", "qc", "{name}.idxstats"), name=samples),
@@ -157,6 +159,7 @@ rule multiqc:
 
     # Run multiqc on the pipeline output directory
     multiqc \\
+        --cl-config "module_order: [kraken, samtools, fastp, fastqc]" \\
         --ignore '*/.singularity/*' \\
         --ignore '*/slurmfiles/*' \\
         -f --interactive \\
