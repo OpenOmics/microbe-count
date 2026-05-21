@@ -11,6 +11,7 @@ FROM ubuntu:24.04
 #  • multiqc        installed from pypi, installs: 1.35
 #  • taxpasta       installed from pypi, installs: 0.7.1
 #  • fastqc         apt-get, installs: 0.12.1
+#  • fastp          apt-get, installs: 0.23.4
 LABEL maintainer=kuhnsa@nih.gov
 
 ############### INIT ################
@@ -39,6 +40,7 @@ RUN apt-get update \
         cmake \
         curl \
         fastqc \
+        fastp \
         gawk \
         git \
         gzip \
