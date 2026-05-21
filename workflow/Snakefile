@@ -11,14 +11,33 @@ from scripts.common import (
 )
 
 
+# Converts taxonomic level abbreviations
+# to their full names for output filenames
+TAXONOMY_MAP = {
+    'D': 'domain', 'K': 'kingdom',
+    'P': 'phylum', 'C': 'class',
+    'O': 'order',  'F': 'family',
+    'G': 'genus',  'S': 'species'
+}
+# Maps full name of taxonomic level to
+# the its corresponding abbreviation
+# braken's level option
+BRACKEN_MAP = {
+    'domain': 'D', 'kingdom': 'K',
+    'phylum': 'P', 'class':   'C',
+    'order':  'O', 'family':  'F',
+    'genus':  'G', 'species': 'S'
+}
+
 # Global workflow variables
 configfile: 'config.json'                       # Generated from user input and config/*.json
 bindpath = config['bindpaths']                  # Singularity paths to bind to the container
-samples  = config['samples']                    # Base name of input samples
+samples  = sorted(config['samples'])            # Base name of input samples
 workpath = config['project']['workpath']        # Pipeline's output directory
 kdb_path = config['options']['kraken2_db_path'] # Kraken2 db for estimating contamination
 batch_id = config['options']['batch_id']        # Batch Identifer, default: ''.
-taxa_lvl = config['options']['taxonomic_level'] # Taxonomic level(s) for bracken
+taxa_abr = config['options']['taxonomic_level'] # Taxonomic level(s) abbreviation for bracken
+taxa_lvl = [TAXONOMY_MAP[t] for t in taxa_abr]  # Taxonomic level(s) full name for output filenames
 
 # Read in resource information,
 # containing information about
@@ -54,14 +73,23 @@ rule all:
         # Run kraken2 on host removed FastQ files
         # @imported from rules/classification.smk
         # @output of rule kraken2_classification
-        expand(join(workpath, "{name}", "kraken2", "{name}.kraken2.report"), name=samples),
+        expand(join(workpath, "{name}", "kraken2", "{name}_kraken2.report"), name=samples),
         # Run bracken to re-estimate microbial abundances
         # at user defined taxonomic level(s)
         # @imported from rules/classification.smk
         # @output of rule bracken_abundance_estimation
         expand(
-            join(workpath, "{name}", "kraken2", "{name}.bracken.{level}.tsv"),
-            name=samples, level=config['options']['taxonomic_level']
+            join(workpath, "{name}", "bracken", "{name}_bracken_{level}-level.tsv"),
+            name=samples,
+            level=taxa_lvl
+        ),
+        # Create counts matrix of bracken re-estimated
+        # abundances at user defined taxonomic level(s)
+        # @imported from rules/classification.smk
+        # @output of rule taxpasta_counts_matrix
+        expand(
+            join(workpath, "counts", "bracken_{level}-level_estimated-counts.tsv"),
+            level=taxa_lvl
         ),
         # Run multiqc to aggregate and summarize QC
         # metrics across samples

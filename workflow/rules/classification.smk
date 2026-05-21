@@ -1,4 +1,6 @@
 # Functions and rules for microbial taxonomic classification
+# Standard library
+from textwrap import dedent
 # Local imports
 from scripts.common import (
     allocated
@@ -11,9 +13,11 @@ rule kraken2_classification:
     Data-processing step for microbial taxonomic classification. Kraken2
     uses exact k-mer matches to achieve high accuracy and fast classification
     speeds. This classifier matches each k-mer within a query sequence to the
-    lowest common ancestor (LCA) of all genomes containing the given k-mer. 
+    lowest common ancestor (LCA) of all genomes containing the given k-mer.
+    This rule is scatter per the cartesian product of samples and taxonomic
+    levels.
     @Input:
-        Paired-end FastQ files containing unmapped reads (scatter)
+        Paired-end FastQ files containing unmapped reads (scatter-per-sample-per-taxonomic-level)
     @Output:
         Taxonomic classification report of host-removed reads
     """
@@ -21,8 +25,8 @@ rule kraken2_classification:
         r1 = join(workpath, "{name}", "fastqs", "{name}.R1.fastq.gz"),
         r2 = join(workpath, "{name}", "fastqs", "{name}.R2.fastq.gz"),
     output:
-        rpt = join(workpath, "{name}", "kraken2", "{name}.kraken2.report"),
-        tsv = join(workpath, "{name}", "kraken2", "{name}.kraken2.output.tsv"),
+        rpt = join(workpath, "{name}", "kraken2", "{name}_kraken2.report"),
+        tsv = join(workpath, "{name}", "kraken2", "{name}_kraken2_output.tsv"),
     params:
         rname  = "kraken2",
         tmpdir = join(workpath, "temp"),
@@ -35,7 +39,7 @@ rule kraken2_classification:
     container: config['images']['microbe-count']
     shell: """
     # Setups temporary directory for
-    # intermediate files with built-in 
+    # intermediate files with built-in
     # mechanism for deletion on exit
     if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
     tmp=$(mktemp -d -p "{params.tmpdir}")
@@ -65,19 +69,28 @@ rule bracken_abundance_estimation:
     @Input:
         Taxonomic classification report of host-removed reads (scatter)
     @Output:
-        Re-estimated abundances from bracken
+        Bracken abundances counts at the specified taxonomic level,
+        Bracken abundances report
     """
     input:
         r1 = join(workpath, "{name}", "fastqs", "{name}.R1.fastq.gz"),
         r2 = join(workpath, "{name}", "fastqs", "{name}.R2.fastq.gz"),
-        rpt = join(workpath, "{name}", "kraken2", "{name}.kraken2.report"),
+        rpt = join(workpath, "{name}", "kraken2", "{name}_kraken2.report"),
     output:
-        bracken = join(workpath, "{name}", "kraken2", "{name}.bracken.{level}.tsv"),
+        bracken = join(workpath, "{name}", "bracken", "{name}_bracken_{level}-level.tsv"),
     params:
-        rname  = "kraken2",
+        rname  = "bracken",
         tmpdir = join(workpath, "temp"),
+        # NOTE: Pre-built public kraken databases
+        # are built with bracken db read lengths
+        # of 50/75/100/150/200/250/300 bp included.
+        # If providing a custom kraken2 database,
+        # please ensure that you build a bracken
+        # db with the appropriate read lengths
+        # outlined below for your data.
         db     = config["options"]["kraken2_db_path"],
         thresh = config["options"]["BRACKEN_THRESHOLD"],
+        level  = lambda w: str(BRACKEN_MAP[w.level]),
     resources:
         mem   = allocated("mem",  "bracken_abundance_estimation", cluster),
         time  = allocated("time", "bracken_abundance_estimation", cluster),
@@ -85,7 +98,7 @@ rule bracken_abundance_estimation:
     container: config['images']['microbe-count']
     shell: """
     # Setups temporary directory for
-    # intermediate files with built-in 
+    # intermediate files with built-in
     # mechanism for deletion on exit
     if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
     tmp=$(mktemp -d -p "{params.tmpdir}")
@@ -119,12 +132,77 @@ rule bracken_abundance_estimation:
 
     # Run bracken to re-estimate abundances
     # at a given taxonomic level
-    echo "Running Bracken at {wildcards.level} level with ${{read_length}} read length."
+    echo "Running Bracken at {wildcards.level} level (i.e {params.level}) with ${{read_length}} read length."
     bracken \\
       -d {params.db} \\
       -i {input.rpt} \\
       -o {output.bracken} \\
       -r "${{read_length}}" \\
-      -l {wildcards.level} \\
+      -l {params.level} \\
       -t {params.thresh}
     """
+
+
+rule taxpasta_counts_matrix:
+    """
+    Data-processing step for generating taxonomic count matrices. TaxPasta
+    standardizes output from different taxonomic classifiers and can generate count
+    matrices at different taxonomic levels. One counts matrix will be generated per
+    taxonomic level.
+    @Input:
+        Bracken abundances counts at the specified taxonomic level (gather-per-taxonomic-level)
+    @Output:
+       Count matrix at the specified taxonomic level (e.g domain, genus, species, etc.)
+    """
+    input:
+        counts = expand(join(workpath, "{name}", "bracken", "{name}_bracken_{{level}}-level.tsv"), name=samples)
+    output:
+        sheet = join(workpath, "counts", "bracken_{level}-level_sample-sheet.tsv"),
+        matrix = join(workpath, "counts", "bracken_{level}-level_estimated-counts.tsv"),
+    params:
+        rname  = "mkmatrix",
+        tmpdir = join(workpath, "temp"),
+        # NOTE: this path must contain a nodes.dmp and
+        # names.dmp file for retrieving for taxonomic
+        # lineage information. The public pre-built
+        # kraken2 databases should always contain
+        # these files.
+        db           = config["options"]["kraken2_db_path"],
+        sample_sheet = lambda w: "\n".join([
+            "{0}\t{1}".format(
+                str(s),
+                join(workpath, "{0}".format(s), "bracken", "{0}_bracken_{1}-level.tsv".format(s, w.level))
+            )
+            for s in samples
+        ]),
+    resources:
+        mem   = allocated("mem",  "taxpasta_counts_matrix", cluster),
+        time  = allocated("time", "taxpasta_counts_matrix", cluster),
+    threads: int(allocated("threads", "taxpasta_counts_matrix", cluster))
+    container: config['images']['microbe-count']
+    shell:
+        dedent("""
+        # Setups temporary directory for
+        # intermediate files with built-in
+        # mechanism for deletion on exit
+        if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
+        tmp=$(mktemp -d -p "{params.tmpdir}")
+        trap 'rm -rf "${{tmp}}"' EXIT
+        export TMPDIR="${{tmp}}"
+
+        # Create sample sheet to rename samples
+        # in the output counts matrix, where:
+        #  1st column = Sample (name in matrix)
+        #  2nd column = Per-sample counts file
+        cat << EOF > {output.sheet}
+        {params.sample_sheet}
+        EOF
+        # Run taxpasta to generate count matrix
+        # at the {wildcards.level} level
+        taxpasta merge -p bracken \\
+            --add-name \\
+            --add-lineage \\
+            --taxonomy {params.db} \\
+            --samplesheet {output.sheet} \\
+            --output {output.matrix}
+        """)
