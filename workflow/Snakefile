@@ -68,11 +68,12 @@ rule all:
         expand(join(workpath, "{name}", "qc", "{name}.flagstats"), name=samples),
         expand(join(workpath, "{name}", "qc", "{name}.stats"), name=samples),
         expand(join(workpath, "{name}", "qc", "{name}.idxstats"), name=samples),
-        # FastQC reports on host removed FastQ files
+        # FastQC reports on trimmed host removed
+        # FastQ files
         # @imported from rules/qc.smk
         # @output of rule fastqc_extracted_reads
-        expand(join(workpath, "{name}", "qc", "{name}.R1_fastqc.zip"), name=samples),
-        expand(join(workpath, "{name}", "qc", "{name}.R2_fastqc.zip"), name=samples),
+        expand(join(workpath, "{name}", "qc", "{name}.R1.trimmed_fastqc.zip"), name=samples),
+        expand(join(workpath, "{name}", "qc", "{name}.R2.trimmed_fastqc.zip"), name=samples),
         # Run kraken2 on host removed FastQ files
         # @imported from rules/classification.smk
         # @output of rule kraken2_classification

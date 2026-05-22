@@ -69,8 +69,8 @@ rule fastqc_extracted_reads:
         r1 = join(workpath, "{name}", "fastqs", "{name}.R1.trimmed.fastq.gz"),
         r2 = join(workpath, "{name}", "fastqs", "{name}.R2.trimmed.fastq.gz"),
     output:
-        join(workpath, "{name}", "qc", "{name}.R1_fastqc.zip"),
-        join(workpath, "{name}", "qc", "{name}.R2_fastqc.zip"),
+        join(workpath, "{name}", "qc", "{name}.R1.trimmed_fastqc.zip"),
+        join(workpath, "{name}", "qc", "{name}.R2.trimmed_fastqc.zip"),
     params:
         rname  = "fqc",
         tmpdir = join(workpath, "temp"),
@@ -126,7 +126,7 @@ rule multiqc:
         across batches or re-runs of the pipeline.
     """
     input:
-        fastqc   = expand(join(workpath, "{name}", "qc", "{name}.{rn}_fastqc.zip"), name=samples, rn=["R1", "R2"]),
+        fastqc   = expand(join(workpath, "{name}", "qc", "{name}.{rn}.trimmed_fastqc.zip"), name=samples, rn=["R1", "R2"]),
         fastp    = expand(join(workpath, "{name}", "fastqs", "{name}.fastp.json"), name=samples),
         flagstat = expand(join(workpath, "{name}", "qc", "{name}.flagstats"), name=samples),
         stats    = expand(join(workpath, "{name}", "qc", "{name}.stats"), name=samples),
