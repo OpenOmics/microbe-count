@@ -3,6 +3,9 @@
   <h1 style="font-size: 250%">microbe-count 🔬</h1>
 
   <b><i>An awesome snakemake pipeline to quantify microbial composition</i></b><br> 
+  <a href="https://doi.org/10.5281/zenodo.20349358">
+    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.20349358.svg" alt="DOI">
+  </a>
   <a href="https://github.com/OpenOmics/microbe-count/releases">
     <img alt="GitHub release" src="https://img.shields.io/github/v/release/OpenOmics/microbe-count?color=blue&include_prereleases">
   </a>
@@ -84,16 +87,25 @@ If you use this software, please cite it as below:
 === "BibTex"
 
     ```
-    Coming Soon!
+    @software{kuhn_2026_20349359,
+      author       = {Kuhn, Skyler},
+      title        = {OpenOmics/microbe-count: v0.1.0},
+      month        = may,
+      year         = 2026,
+      publisher    = {Zenodo},
+      version      = {v0.1.0},
+      doi          = {10.5281/zenodo.20349359},
+      url          = {https://doi.org/10.5281/zenodo.20349359},
+    }
     ```
 
 === "APA"
 
     ```
-    Coming Soon!
+    Kuhn, S. (2026). OpenOmics/microbe-count: v0.1.0 (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.20349359
     ```
 
-For more citation style options, please visit the pipeline's [Zenodo page](https://doi.org/).
+For more citation style options, please visit the pipeline's [Zenodo page](https://doi.org/10.5281/zenodo.20349358).
 
 
 ## References

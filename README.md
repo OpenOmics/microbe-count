@@ -4,7 +4,7 @@
   
   **_An awesome snakemake pipeline to quantify microbial composition_**
 
-  [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/OpenOmics/microbe-count?color=blue&include_prereleases)](https://github.com/OpenOmics/microbe-count/releases) [![Docker Pulls](https://img.shields.io/docker/pulls/skchronicles/microbe-count)](https://hub.docker.com/repository/docker/skchronicles/microbe-count) <br> [![tests](https://github.com/OpenOmics/microbe-count/workflows/tests/badge.svg)](https://github.com/OpenOmics/microbe-count/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/microbe-count/workflows/docs/badge.svg)](https://github.com/OpenOmics/microbe-count/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/microbe-count?color=brightgreen)](https://github.com/OpenOmics/microbe-count/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/microbe-count)](https://github.com/OpenOmics/microbe-count/blob/main/LICENSE) 
+  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20349358.svg)](https://doi.org/10.5281/zenodo.20349358) [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/OpenOmics/microbe-count?color=blue&include_prereleases)](https://github.com/OpenOmics/microbe-count/releases) [![Docker Pulls](https://img.shields.io/docker/pulls/skchronicles/microbe-count)](https://hub.docker.com/repository/docker/skchronicles/microbe-count) <br> [![tests](https://github.com/OpenOmics/microbe-count/workflows/tests/badge.svg)](https://github.com/OpenOmics/microbe-count/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/microbe-count/workflows/docs/badge.svg)](https://github.com/OpenOmics/microbe-count/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/microbe-count?color=brightgreen)](https://github.com/OpenOmics/microbe-count/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/microbe-count)](https://github.com/OpenOmics/microbe-count/blob/main/LICENSE) 
   
   <i>
     This is the home of the pipeline, microbe-count. Its long-term goals: to make estimating microbial composition from host-aligned data quick and easy.
@@ -63,7 +63,16 @@ If you use this software, please cite it as below:
   <summary><b><i>@BibText</i></b></summary>
  
 ```text
-Coming Soon!
+@software{kuhn_2026_20349359,
+  author       = {Kuhn, Skyler},
+  title        = {OpenOmics/microbe-count: v0.1.0},
+  month        = may,
+  year         = 2026,
+  publisher    = {Zenodo},
+  version      = {v0.1.0},
+  doi          = {10.5281/zenodo.20349359},
+  url          = {https://doi.org/10.5281/zenodo.20349359},
+}
 ```
 
 </details>
@@ -72,7 +81,7 @@ Coming Soon!
   <summary><b><i>@APA</i></b></summary>
 
 ```text
-Coming Soon!
+Kuhn, S. (2026). OpenOmics/microbe-count: v0.1.0 (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.20349359
 ```
 
 </details>
