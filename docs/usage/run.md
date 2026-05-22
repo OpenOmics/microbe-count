@@ -11,18 +11,19 @@ Setting up the microbe-count pipeline is fast and easy! In its most basic form, 
 ## 2. Synopsis
 
 ```text
-$ microbe-count run [--help] \
-      [--dry-run] [--job-name JOB_NAME] [--mode {{slurm,local}}] \
-      [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE] \
-      [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
-      [--batch-id BATCH_ID] [--kraken2-db-path KRAKEN2_DB_PATH] \
-      --input INPUT [INPUT ...] \
-      --output OUTPUT
+$ microbe-count run [--help] \\
+      [--dry-run] [--job-name JOB_NAME] [--mode {{slurm,local}}] \\
+      [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE] \\
+      [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \\
+      [--batch-id BATCH_ID] [--taxonomic-level TAXONOMIC_LEVEL] \\
+      --input INPUT [INPUT ...] \\
+      --output OUTPUT \\
+      --kraken2-db-path KRAKEN2_DB_PATH
 ```
 
 The synopsis for each command shows its arguments and their usage. Optional arguments are shown in square brackets.
 
-A user **must** provide a list of BAM (globbing is supported) to analyze via `--input` argument, an output directory to store results via `--output` argument, and a path/directory to a kraken2 database.
+A user **must** provide a list of host aligned, paired-end BAM files (globbing is supported) to analyze via `--input` argument, an output directory to store results via `--output` argument, and a path/directory to a kraken2 database. The kraken2 database path must also contain bracken db reference files, along with a `names.dmp` and `nodes.dmp` files. Kraken2 databases downloaded from [Ben Langmead's AWS indexes](https://benlangmead.github.io/aws-indexes/k2) are compatible with microbe-count. These public databases can all the required reference file for running the pipeline end-to-end.
 
 Use you can always use the `-h` option for information on a specific command. 
 
@@ -34,7 +35,7 @@ Each of the following arguments are required. Failure to provide a required argu
 > **Input BAM file(s).**  
 > *type: BAM file(s)*  
 > 
-> Input BAM files to process. BAM files for one or more samples can be provided. Multiple input BAM files should be seperated by a space. Globbing for multiple file is also supported! This makes selecting BAM files easy.
+> Input host aligned, paired-end BAM files to process. BAM files for one or more samples can be provided. Multiple input BAM files should be seperated by a space. Globbing for multiple file is also supported! This makes selecting BAM files easy.
 > 
 > ***Example:*** `--input .tests/*.bam`
 
@@ -43,16 +44,16 @@ Each of the following arguments are required. Failure to provide a required argu
 > **Path to an output directory.**   
 > *type: path*
 >   
-> This location is where the pipeline will create all of its output files, also known as the pipeline's working directory. If the provided output directory does not exist, it will be created automatically.
+> This location is where the pipeline will create all of its output files, also known as the pipeline's working directory. If the provided output directory does not exist, it will be created automatically. Within this output directory, the `counts` directory will contain a counts matrix for each of the taxonomic levels that were provide via the `--taxonomic-level` argument. The `report` directory contains a multiqc report summarizing the output from different tools (i.e `kraken2`, `samtools`, `fastp`, `fastqc`, etc.). 
 > 
 > ***Example:*** `--output /data/$USER/microbe-count_out`
 
 ---  
   `--kraken2-db-path KRAKEN2_DB_PATH`
-> **Path to a Kraken2 Database.**   
+> **Path to a Kraken2 + Braken Database.**   
 > *type: path*
 >   
-> A path or a directory to a kraken2 database. This database will be used for estimating microbial composition of each sample using kraken2. Please see the kraken2 documentation for more information on how to build a kraken2 database. If you have already built a kraken2 database, you can provide the path to the directory containing the database files. The pipeline will automatically search for the other database files in the same directory. Kraken2 databases can also be downloaded from the following [public resource hosted by Ben Langmead](https://benlangmead.github.io/aws-indexes/k2). 
+> A path or a directory to a kraken2 + braken database. This database will be used for estimating microbial composition of each sample using kraken2 and bracken. Please see the kraken2 + bracken documentation for more information on how to build reference files for these tools. Kraken2 + bracken databases downloaded from [Ben Langmead's AWS indexes](https://benlangmead.github.io/aws-indexes/k2) are compatible with microbe-count. These public databases can all the required reference file for running the pipeline end-to-end. If you have already built a kraken2 database, you can provide the path to the directory containing the database files. The pipeline will automatically search for the other database files in the same directory.
 > 
 > ***Example:*** `--kraken2-db-path .tests/kraken2-db`
 
@@ -69,6 +70,14 @@ Each of the following arguments are optional, and do not need to be provided.
 > 
 > ***Example:*** `--batch-id 2025_04_08`
 
+  `--taxonomic-level TAXONOMIC_LEVEL`
+> **One or more taxonomic levels to re-estimate microbial abudances.**  
+> *type: string(s)*  
+> *default: `S`*  
+>
+> This option is used to specify the one or more taxonomic levels to estimate microbial composition with bracken. Valid options include: `D` for domain, `P` for phylum, `C` for class, `O` for order, `F` for family, `G` for genus, and `S` for species. By default, the pipeline will estimate microbial composition at the species-level.
+> 
+> ***Example:*** `--taxonomic-level D G S`
 
 ### 2.3 Orchestration options
 
@@ -180,17 +189,19 @@ module load snakemake/7.22.0-ufanewz
 
 # Step 2A.) Dry-run the pipeline
 ./microbe-count run --input .tests/*.bam \
-                  --output /data/$USER/output \
-                  --kraken2-db-path .tests/kraken2-db \
-                  --mode slurm \
-                  --dry-run
+    --output microbe-count_output \
+    --taxonomic-level G S \
+    --kraken2-db-path .tests/kraken2-db \
+    --mode slurm \
+    --dry-run
 
 # Step 2B.) Run the microbe-count pipeline
 # The slurm mode will submit jobs to 
 # the cluster. It is recommended running 
 # the pipeline in this mode.
 ./microbe-count run --input .tests/*.bam \
-                  --output /data/$USER/output \
-                  --kraken2-db-path .tests/kraken2-db \
-                  --mode slurm
+    --output microbe-count_output \
+    --taxonomic-level G S \
+    --kraken2-db-path .tests/kraken2-db \
+    --mode slurm
 ```
