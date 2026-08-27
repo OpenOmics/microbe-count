@@ -11,13 +11,13 @@ Setting up the microbe-count pipeline is fast and easy! In its most basic form, 
 ## 2. Synopsis
 
 ```text
-$ microbe-count run [--help] \\
-      [--dry-run] [--job-name JOB_NAME] [--mode {{slurm,local}}] \\
-      [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE] \\
-      [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \\
-      [--batch-id BATCH_ID] [--taxonomic-level TAXONOMIC_LEVEL] \\
-      --input INPUT [INPUT ...] \\
-      --output OUTPUT \\
+$ microbe-count run [--help] \
+      [--dry-run] [--job-name JOB_NAME] [--mode {{slurm,local}}] \
+      [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE] \
+      [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
+      [--batch-id BATCH_ID] [--taxonomic-level TAXONOMIC_LEVEL] \
+      --input INPUT [INPUT ...] \
+      --output OUTPUT \
       --kraken2-db-path KRAKEN2_DB_PATH
 ```
 

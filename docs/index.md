@@ -42,12 +42,12 @@ The **`./microbe-count`** pipeline is composed several inter-related sub command
 
 !!! inline custom-grid-button ""
 
-    [<code style="font-size: 1em;">microbe-count <b>run</b></code>](usage/run.md)
+    [<code style="font-size: 1em;">microbe-count <b>run</b></code>](usage/run.md)  
     Run the microbe-count pipeline with your input BAM files.
 
 !!! inline custom-grid-button ""
 
-    [<code style="font-size: 1em;">microbe-count <b>unlock</b></code>](usage/unlock.md)
+    [<code style="font-size: 1em;">microbe-count <b>unlock</b></code>](usage/unlock.md)  
     Unlocks a previous runs output directory.
 
 </section>
@@ -57,13 +57,13 @@ The **`./microbe-count`** pipeline is composed several inter-related sub command
 
 !!! inline custom-grid-button ""
 
-    [<code style="font-size: 1em;">microbe-count <b>install</b></code>](usage/install.md)
+    [<code style="font-size: 1em;">microbe-count <b>install</b></code>](usage/install.md)  
     Download remote reference files locally.
 
 
 !!! inline custom-grid-button ""
 
-    [<code style="font-size: 1em;">microbe-count <b>cache</b></code>](usage/cache.md)
+    [<code style="font-size: 1em;">microbe-count <b>cache</b></code>](usage/cache.md)  
     Cache remote software containers locally.
 
 </section>
